@@ -1,0 +1,14 @@
+version: 1
+services:
+  - type: web
+    name: fairblock-banner-backend
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISCORD_TOKEN
+        sync: false

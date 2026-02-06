@@ -9,6 +9,12 @@ const app = express();
 app.use(cors());
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
+const PORT = process.env.PORT || 3001;
+
+// Root endpoint
+app.get("/", (req, res) => {
+  res.json({ message: "Fairblock Banner API is running" });
+});
 
 // Fetch Discord user avatar
 app.get("/discord-avatar/:id", async (req, res) => {
@@ -41,6 +47,6 @@ app.get("/discord-avatar/:id", async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log("Server running on port 3001");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
