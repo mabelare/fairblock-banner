@@ -1,10 +1,7 @@
-version: 1
 services:
   - type: web
     name: fairblock-banner-backend
-    env: node
-    region: frankfurt
-    plan: free
+    runtime: node
     buildCommand: npm install
     startCommand: node index.js
     envVars:
