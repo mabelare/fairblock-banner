@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fairblock Banner Generator</title>
+    <meta name="description" content="Generate your custom Fairblock banner" />
+    <link rel="icon" href="logo.jpg" type="image/jpeg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @keyframes marquee {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      .animate-marquee {
+        animation: marquee 20s linear infinite;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div
+      class="min-h-screen text-white p-4 sm:p-10 flex flex-col items-center font-sans"
+      style="
+        background:
+          linear-gradient(
+            to right,
+            rgba(100, 150, 200, 0.15) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(100, 150, 200, 0.27) 1px,
+            transparent 1px
+          ),
+          radial-gradient(circle at center, #1a2332 0%, #000000 100%);
+        background-size:
+          40px 40px,
+          40px 40px,
+          100% 100%;
+      "
+    >
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
+        <img
+          src="logo.jpg"
+          alt="Fairblock Logo"
+          class="h-10 w-10 md:h-15 md:w-16 drop-shadow-[0_0_15px_rgba(100,200,240,0.6)] hover:drop-shadow-[0_0_25px_rgba(100,200,240,0.8)] transition-all duration-300"
+        />
+        <h1
+          class="text-3xl sm:text-5xl font-bold tracking-wider"
+          style="
+            background-image: linear-gradient(to right, #4a8fd8, #64c8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          "
+        >
+          Fairblock Banner Generator
+        </h1>
+      </div>
+
+      <!-- Input Section -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-8 w-full max-w-xl z-10">
+        <input
+          type="text"
+          id="discordId"
+          placeholder="Discord User ID"
+          class="flex-1 p-4 rounded bg-gray-900 border border-gray-700 focus:border-[#64c8f0] outline-none text-lg transition-colors"
+        />
+        <button
+          id="fetchBtn"
+          class="text-white px-8 py-3 rounded font-bold text-lg transition-colors disabled:opacity-50"
+          style="
+            background-image: linear-gradient(
+              to right,
+              #5eb3f6,
+              #2d5f8d,
+              #5eb3f6
+            );
+          "
+        >
+          Generate
+        </button>
+      </div>
+
+      <!-- Canvas Section -->
+      <div
+        class="border border-gray-800 rounded-xl overflow-hidden shadow-2xl bg-gray-900/50 backdrop-blur-sm"
+      >
+        <canvas
+          id="bannerCanvas"
+          width="1200"
+          height="400"
+          class="w-full max-w-[1200px] h-auto block"
+        ></canvas>
+      </div>
+
+      <!-- Download Button -->
+      <button
+        id="downloadBtn"
+        class="mt-6 md:mt-8 bg-[#e6f7ff] text-[#4a8fd8] border-2 md:border-[3px] border-[#4a8fd8] px-6 py-2 md:px-10 md:py-4 rounded-full font-bold text-sm md:text-xl uppercase tracking-wider md:tracking-widest hover:bg-[#d0efff] transition-transform hover:scale-105 active:scale-95 shadow-md md:shadow-lg whitespace-nowrap"
+      >
+        Download Banner
+      </button>
+
+      <!-- Credits -->
+      <span class="text-[#C0C0C0] text-sm mt-3">
+        Developed by
+        <a
+          href="https://x.com/t_webninja"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-[#64c8f08b] hover:underline"
+          >Mabelxo</a
+        >
+        &amp; Art by
+        <a
+          href="https://x.com/maryisclear"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-[#64c8f08b] hover:underline"
+          >Mabelxo</a
+        >
+        | © 2026 Fairblock.
+      </span>
+
+      <!-- Audio Control Button -->
+      <div class="fixed bottom-6 right-6 z-50">
+        <audio id="bgMusic" loop autoplay muted>
+          <source src="/music.mp3" type="audio/mpeg" />
+        </audio>
+        <button
+          id="audioBtn"
+          class="bg-[#1a1618] border-2 border-[#4a8fd8] p-3 rounded-full shadow-lg hover:scale-110 hover:border-[#64c8f0] transition-all group"
+          aria-label="Play Background Music"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#4a8fd8"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="group-hover:stroke-[#64c8f0] transition-colors"
+          >
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Scrolling Marquee -->
+      <div
+        class="fixed bottom-0 left-0 w-full overflow-hidden bg-black/40 py-[2px] md:py-1 z-50 border-t border-[#4a8fd8]"
+      >
+        <div class="w-[200%] flex animate-marquee">
+          <div class="flex items-center gap-1">
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >SELECTIVE DISCLOSURE •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >FINTECHS •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >PRIVACY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >SELECTIVE DISCLOSURE •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >FINTECHS •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >PRIVACY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+          </div>
+          <div class="flex items-center gap-1">
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >SELECTIVE DISCLOSURE •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >PRIVACY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >SELECTIVE DISCLOSURE •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >PRIVACY •</span
+            >
+            <span
+              class="mx-2 md:mx-4 text-[#64c8f0] font-bold uppercase tracking-widest text-[5px] md:text-sm leading-none"
+              >CONFIDENTIALITY •</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Generations Section -->
+      <section class="w-full max-w-6xl mx-auto mt-20 mb-20 px-4">
+        <div class="flex items-center gap-4 mb-8">
+          <div
+            class="h-0.5 flex-1 bg-gradient-to-r from-transparent to-[#4a8fd8]"
+          ></div>
+          <h2
+            class="text-[#64c8f0] font-bold text-2xl md:text-3xl uppercase tracking-widest text-center"
+          >
+            Latest Generations
+          </h2>
+          <div
+            class="h-0.5 flex-1 bg-gradient-to-l from-transparent to-[#4a8fd8]"
+          ></div>
+        </div>
+        <div
+          id="galleryGrid"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Gallery items will be loaded here -->
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
