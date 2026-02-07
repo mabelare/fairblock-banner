@@ -48,7 +48,9 @@ async function generate() {
 
     try {
       // Fetch avatar
-      const r = await fetch(`https://fairblock-banner.onrender.com/discord-avatar/${id}`);
+      const r = await fetch(
+        `https://fairblock-banner.onrender.com/discord-avatar/${id}`,
+      );
       const data = await r.json();
 
       console.log("Received data from backend:", data);
