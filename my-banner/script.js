@@ -29,6 +29,12 @@ async function generate() {
   const banner = new Image();
   banner.src = "/banner.jpg";
 
+  banner.onerror = () => {
+    alert("Cannot load banner.jpg — place it in the public folder");
+    fetchBtn.textContent = "Generate";
+    fetchBtn.disabled = false;
+  };
+
   banner.onload = async () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
