@@ -8,7 +8,9 @@ const downloadBtn = document.getElementById("downloadBtn");
 let currentDiscordId = "";
 let currentUsername = "";
 
-// Load Fairblock banner image (removed unused initial load)
+// Preload banner image for instant rendering
+const bannerImage = new Image();
+bannerImage.src = "/banner.jpg";
 
 // Generate banner with Discord avatar
 async function generate() {
@@ -25,119 +27,98 @@ async function generate() {
   fetchBtn.textContent = "Loading...";
   fetchBtn.disabled = true;
 
-  // Load banner image from assets
-  const banner = new Image();
-  banner.src = "/banner.jpg";
-
-  banner.onerror = () => {
-    alert("Cannot load banner.jpg — place it in the public folder");
-    fetchBtn.textContent = "Generate";
-    fetchBtn.disabled = false;
-  };
-
-  banner.onload = async () => {
+  try {
+    // Draw banner immediately
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Crop from the left by skipping some pixels
-    const cropLeft = 150; // Adjust this value to crop more or less from the left
+    const cropLeft = 150;
     ctx.drawImage(
-      banner,
+      bannerImage,
       cropLeft,
       0,
-      banner.width - cropLeft,
-      banner.height, // Source: crop from left
+      bannerImage.width - cropLeft,
+      bannerImage.height,
       0,
       0,
       canvas.width,
-      canvas.height, // Destination: fill canvas
+      canvas.height
     );
 
-    try {
-      // Fetch avatar - use local backend for development, Netlify function for production
-      const isDev = window.location.hostname === "localhost";
-      const apiUrl = isDev
-        ? `http://localhost:3001/discord-avatar/${id}`
-        : `/.netlify/functions/discord?id=${id}`;
+    // Fetch Discord data
+    const isDev = window.location.hostname === "localhost";
+    const apiUrl = isDev
+      ? `http://localhost:3001/discord-avatar/${id}`
+      : `/.netlify/functions/discord?id=${id}`;
 
-      const r = await fetch(apiUrl);
-      const data = await r.json();
+    const r = await fetch(apiUrl);
+    const data = await r.json();
 
-      console.log("Received data from backend:", data);
+    console.log("Received data from backend:", data);
 
-      if (!data.avatar) {
-        alert("Avatar not found");
-        fetchBtn.textContent = "Generate";
-        fetchBtn.disabled = false;
-        return;
-      }
-
-      const avatar = new Image();
-      avatar.crossOrigin = "anonymous";
-      avatar.src = data.avatar;
-
-      avatar.onload = () => {
-        // Adjust these values to match your banner's purple circle
-        // Canvas is 1200x400, so adjust accordingly
-        const size = 210; // Size of the circular profile picture
-        const x = 210; // X position (left edge of circle)
-        const y = 190; // Y position (top edge of circle) - moved down
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-
-        ctx.drawImage(avatar, x, y, size, size);
-        ctx.restore();
-
-        // Draw username text
-        const username = data.displayName || data.username;
-        currentUsername = username; // Store for later use
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 28px Inter, sans-serif";
-        ctx.textAlign = "right";
-
-        // Measure and truncate if needed
-        const maxWidth = x - 60; // Maximum width for username
-        let displayName = username;
-        if (ctx.measureText(displayName).width > maxWidth) {
-          while (
-            ctx.measureText(displayName + "...").width > maxWidth &&
-            displayName.length > 0
-          ) {
-            displayName = displayName.slice(0, -1);
-          }
-          displayName += "...";
-        }
-
-        ctx.fillText(displayName, x - 40, y + size / 2 + 10);
-
-        console.log("Banner generated successfully!");
-        fetchBtn.textContent = "Generate";
-        fetchBtn.disabled = false;
-      };
-
-      avatar.onerror = () => {
-        alert("Failed to load avatar image");
-        fetchBtn.textContent = "Generate";
-        fetchBtn.disabled = false;
-      };
-    } catch (error) {
-      alert(
-        "Could not load Discord avatar. Check the User ID and make sure the backend is running.",
-      );
-      console.error(error);
+    if (!data.avatar) {
+      alert("Avatar not found");
       fetchBtn.textContent = "Generate";
       fetchBtn.disabled = false;
+      return;
     }
-  };
 
-  banner.onerror = () => {
-    alert("Cannot load banner.jpg — place it in the public folder");
+    const avatar = new Image();
+    avatar.crossOrigin = "anonymous";
+    avatar.src = data.avatar;
+
+    avatar.onload = () => {
+      const size = 210;
+      const x = 210;
+      const y = 190;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
+      ctx.drawImage(avatar, x, y, size, size);
+      ctx.restore();
+
+      // Draw username text
+      const username = data.displayName || data.username;
+      currentUsername = username;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 28px Inter, sans-serif";
+      ctx.textAlign = "right";
+
+      // Measure and truncate if needed
+      const maxWidth = x - 60;
+      let displayName = username;
+      if (ctx.measureText(displayName).width > maxWidth) {
+        while (
+          ctx.measureText(displayName + "...").width > maxWidth &&
+          displayName.length > 0
+        ) {
+          displayName = displayName.slice(0, -1);
+        }
+        displayName += "...";
+      }
+
+      ctx.fillText(displayName, x - 40, y + size / 2 + 10);
+
+      console.log("Banner generated successfully!");
+      fetchBtn.textContent = "Generate";
+      fetchBtn.disabled = false;
+    };
+
+    avatar.onerror = () => {
+      alert("Failed to load avatar image");
+      fetchBtn.textContent = "Generate";
+      fetchBtn.disabled = false;
+    };
+  } catch (error) {
+    alert(
+      "Could not load Discord avatar. Check the User ID and make sure the backend is running.",
+    );
+    console.error(error);
     fetchBtn.textContent = "Generate";
     fetchBtn.disabled = false;
-  };
+  }
 }
 
 // Download banner
