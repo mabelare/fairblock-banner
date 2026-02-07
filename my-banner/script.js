@@ -53,8 +53,13 @@ async function generate() {
     );
 
     try {
-      // Fetch avatar from Netlify function
-      const r = await fetch(`/.netlify/functions/discord?id=${id}`);
+      // Fetch avatar - use local backend for development, Netlify function for production
+      const isDev = window.location.hostname === "localhost";
+      const apiUrl = isDev
+        ? `http://localhost:3001/discord-avatar/${id}`
+        : `/.netlify/functions/discord?id=${id}`;
+
+      const r = await fetch(apiUrl);
       const data = await r.json();
 
       console.log("Received data from backend:", data);
