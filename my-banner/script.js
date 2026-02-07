@@ -53,10 +53,8 @@ async function generate() {
     );
 
     try {
-      // Fetch avatar
-      const r = await fetch(
-        `https://fairblock-banner.onrender.com/discord-avatar/${id}`,
-      );
+      // Fetch avatar from Netlify function
+      const r = await fetch(`/.netlify/functions/discord?id=${id}`);
       const data = await r.json();
 
       console.log("Received data from backend:", data);
