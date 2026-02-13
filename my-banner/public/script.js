@@ -12,6 +12,20 @@ let currentUsername = "";
 const bannerImage = new Image();
 bannerImage.src = "/banner.jpg";
 
+// Helper function to wait for banner image to load
+function ensureBannerLoaded() {
+  return new Promise((resolve, reject) => {
+    if (bannerImage.complete) {
+      // Image is already loaded from cache
+      resolve();
+    } else {
+      bannerImage.onload = resolve;
+      bannerImage.onerror = () =>
+        reject(new Error("Failed to load banner.jpg"));
+    }
+  });
+}
+
 // Generate banner with Discord avatar
 async function generate() {
   const id = discordIdInput.value.trim();
@@ -28,19 +42,41 @@ async function generate() {
   fetchBtn.disabled = true;
 
   try {
+    // Ensure banner image is loaded
+    await ensureBannerLoaded();
+
     // Draw banner immediately
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const cropLeft = 150;
+
+    // Calculate proper scaling to fit image in canvas
+    const imgAspect = bannerImage.width / bannerImage.height;
+    const canvasAspect = canvas.width / canvas.height;
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (imgAspect > canvasAspect) {
+      // Image is wider - fit to height
+      drawHeight = canvas.height;
+      drawWidth = canvas.height * imgAspect;
+      drawX = (canvas.width - drawWidth) / 2;
+      drawY = 0;
+    } else {
+      // Image is taller - fit to width
+      drawWidth = canvas.width;
+      drawHeight = canvas.width / imgAspect;
+      drawX = 0;
+      drawY = (canvas.height - drawHeight) / 2;
+    }
+
     ctx.drawImage(
       bannerImage,
-      cropLeft,
       0,
-      bannerImage.width - cropLeft,
+      0,
+      bannerImage.width,
       bannerImage.height,
-      0,
-      0,
-      canvas.width,
-      canvas.height
+      drawX,
+      drawY,
+      drawWidth,
+      drawHeight,
     );
 
     // Fetch Discord data
@@ -66,9 +102,10 @@ async function generate() {
     avatar.src = data.avatar;
 
     avatar.onload = () => {
-      const size = 210;
-      const x = 210;
-      const y = 190;
+      // Seismic banner is 1500x500 (3:1 aspect ratio)
+      const size = 265; // Size of the circular profile picture
+      const x = 60; // X position (left edge of circle)
+      const y = 110; // Y position (center vertically: (500 - 250) / 2 = 125)
 
       ctx.save();
       ctx.beginPath();
@@ -79,27 +116,9 @@ async function generate() {
       ctx.drawImage(avatar, x, y, size, size);
       ctx.restore();
 
-      // Draw username text
+      // Store username for gallery (but don't display on banner)
       const username = data.displayName || data.username;
       currentUsername = username;
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 28px Inter, sans-serif";
-      ctx.textAlign = "right";
-
-      // Measure and truncate if needed
-      const maxWidth = x - 60;
-      let displayName = username;
-      if (ctx.measureText(displayName).width > maxWidth) {
-        while (
-          ctx.measureText(displayName + "...").width > maxWidth &&
-          displayName.length > 0
-        ) {
-          displayName = displayName.slice(0, -1);
-        }
-        displayName += "...";
-      }
-
-      ctx.fillText(displayName, x - 40, y + size / 2 + 10);
 
       console.log("Banner generated successfully!");
       fetchBtn.textContent = "Generate";
